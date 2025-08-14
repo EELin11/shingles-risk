@@ -28,7 +28,7 @@
   <video id="video" autoplay muted playsinline></video>
   <img id="top-overlay" src="overlay.png" alt="Top Overlay" />
   <div class="buttons">
-    <!-- dropdowns here... same as original -->
+    <!-- 在這裡加你的 dropdown 選單 -->
   </div>
   <div class="result-link" id="resultLink" style="display: none;">
     <a href="https://www.knowhz.com.tw/" target="_blank">
@@ -63,17 +63,15 @@
       selections[category] = score;
 
       const video = document.getElementById('video');
-      const resultLink = document.getElementById('resultLink');
-
       let level = getLevel(currentScore);
+
       if (lastVideo && lastVideo !== level) {
         playSequence(video, `${lastVideo}-0.mov`, `0-${level}.mov`, level);
       } else if (!lastVideo) {
         playSequence(video, null, `0-${level}.mov`, level);
       }
+      // 更新目前程度
       lastVideo = level;
-
-      resultLink.style.display = 'none';
     }
 
     function getLevel(score) {
@@ -84,12 +82,22 @@
     }
 
     async function playSequence(video, out, into, level) {
+      const resultImage = document.getElementById('resultImage');
+      const resultLink = document.getElementById('resultLink');
+
+      // 只有在播放程度-0（如 light-0.mov）時才隱藏結果圖
+      const hideOnPlay = out && out.endsWith('-0.mov');
+      if (hideOnPlay) {
+        resultLink.style.display = 'none';
+      }
+
       if (out) {
         await playVideo(video, out);
       }
+
       await playVideo(video, into);
-      const resultImage = document.getElementById('resultImage');
-      const resultLink = document.getElementById('resultLink');
+
+      // 播完後顯示新的結果圖
       resultImage.src = `${level}.png`;
       resultLink.style.display = 'flex';
     }
