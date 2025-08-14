@@ -2,14 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shingles Risk Assessment</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       width: 100%;
       height: 100%;
@@ -18,25 +14,34 @@
       position: relative;
     }
 
+    #loading-screen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #fff;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     #cover, #top-overlay, .result-img {
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
     }
 
-    #cover {
-      z-index: 1;
-    }
+    #cover { z-index: 1; }
 
     #video {
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
       z-index: 2;
     }
@@ -61,6 +66,7 @@
     .dropdown {
       position: relative;
     }
+
     .dropdown-btn {
       width: 160px;
       padding: 10px;
@@ -72,9 +78,9 @@
       font-size: 16px;
       font-family: inherit;
     }
-    .dropdown-btn:focus {
-      outline: none;
-    }
+
+    .dropdown-btn:focus { outline: none; }
+
     .dropdown-content {
       display: none;
       position: absolute;
@@ -84,12 +90,14 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       z-index: 4;
     }
+
     .dropdown-content div {
       padding: 10px;
       cursor: pointer;
       white-space: nowrap;
       color: #ababb1;
     }
+
     .dropdown-content div:hover {
       background-color: #f0f0f0;
     }
@@ -120,6 +128,10 @@
   </style>
 </head>
 <body>
+  <div id="loading-screen">
+    <img src="loading.gif" alt="Loading..." />
+  </div>
+
   <img id="cover" src="cover.jpg" alt="Background Cover" />
   <video id="video" autoplay muted playsinline></video>
   <img id="top-overlay" src="overlay.png" alt="Top Overlay" />
@@ -174,6 +186,30 @@
     let lastVideo = null;
     let selections = {};
 
+    const allVideos = [
+      '0-mild.mov', 'mild-0.mov',
+      '0-light.mov', 'light-0.mov',
+      '0-medium.mov', 'medium-0.mov',
+      '0-heavy.mov', 'heavy-0.mov'
+    ];
+
+    function preloadVideos() {
+      let loaded = 0;
+      allVideos.forEach(src => {
+        const v = document.createElement('video');
+        v.src = src;
+        v.preload = 'auto';
+        v.oncanplaythrough = () => {
+          loaded++;
+          if (loaded === allVideos.length) {
+            document.getElementById('loading-screen').style.display = 'none';
+          }
+        };
+      });
+    }
+
+    window.onload = preloadVideos;
+
     function toggleDropdown(event, id) {
       event.stopPropagation();
       document.querySelectorAll('.dropdown-content').forEach(el => {
@@ -226,49 +262,25 @@
         }
       }
 
-      if (out) await playVideo(video, out);
-      await playVideo(video, into);
+      if (out) {
+        video.src = out;
+        await video.play();
+        await waitForEnd(video);
+      }
+
+      video.src = into;
+      await video.play();
+      await waitForEnd(video);
 
       resultImage.src = `${level}.png`;
       resultLink.style.display = 'flex';
     }
 
-    function playVideo(video, src) {
-      return new Promise((resolve, reject) => {
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-        video.src = src;
-        video.load();
-
-        const tryPlay = () => {
-          video.play().then(() => {
-            if (video.readyState >= 3) {
-              resolve();
-            } else {
-              video.oncanplaythrough = () => resolve();
-            }
-          }).catch(reject);
-        };
-
-        video.onloadeddata = tryPlay;
+    function waitForEnd(video) {
+      return new Promise(resolve => {
+        video.onended = resolve;
       });
     }
-
-    // 🆕 預載影片資源
-    const videoFilesToPreload = [
-      '0-mild.mov', '0-light.mov', '0-medium.mov', '0-heavy.mov',
-      'mild-0.mov', 'light-0.mov', 'medium-0.mov', 'heavy-0.mov'
-    ];
-
-    videoFilesToPreload.forEach(src => {
-      const preloadVideo = document.createElement('video');
-      preloadVideo.src = src;
-      preloadVideo.preload = 'auto';
-      preloadVideo.muted = true;
-      preloadVideo.style.display = 'none';
-      document.body.appendChild(preloadVideo);
-    });
   </script>
 </body>
 </html>
