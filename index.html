@@ -7,34 +7,107 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; position: relative; }
-    #cover, #top-overlay, .result-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    #cover, #top-overlay, .result-img {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: auto;
+      aspect-ratio: 2521 / 1175;
+      object-fit: contain;
+    }
     #cover { z-index: 1; }
-    #video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
-    .buttons { position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; padding: 10px; z-index: 3; }
+    #video {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: auto;
+      aspect-ratio: 2521 / 1175;
+      object-fit: contain;
+      z-index: 2;
+    }
+    .buttons {
+      position: absolute; top: 50%; right: 0;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 10px; padding: 10px;
+      z-index: 3;
+    }
     #top-overlay { z-index: 4; pointer-events: none; }
+
     .dropdown { position: relative; }
-    .dropdown-btn { width: 160px; padding: 10px; background-color: white; color: #ababb1; border: none; cursor: pointer; text-align: center; font-size: 16px; font-family: inherit; }
+    .dropdown-btn {
+      width: 160px; padding: 10px;
+      background-color: white; color: #ababb1;
+      border: none; cursor: pointer; text-align: center; font-size: 16px; font-family: inherit;
+    }
     .dropdown-btn:focus { outline: none; }
-    .dropdown-content { display: none; position: absolute; right: 100%; top: 0; background-color: white; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); z-index: 4; }
-    .dropdown-content div { padding: 10px; cursor: pointer; white-space: nowrap; color: #ababb1; }
+    .dropdown-content {
+      display: none; position: absolute; right: 100%; top: 0;
+      background-color: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      z-index: 4;
+    }
+    .dropdown-content div {
+      padding: 10px; cursor: pointer;
+      white-space: nowrap; color: #ababb1;
+    }
     .dropdown-content div:hover { background-color: #f0f0f0; }
-    .result-link { position: absolute; bottom: 0; left: 0; width: 100%; display: flex; justify-content: flex-start; z-index: 5; pointer-events: none; }
-    .result-link a { pointer-events: auto; display: block; max-width: 40%; aspect-ratio: 2000 / 675; }
-    .result-link img { width: 100%; height: auto; object-fit: contain; }
+
+    .result-link {
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; display: flex; justify-content: flex-start;
+      z-index: 5; pointer-events: none;
+    }
+    .result-link a {
+      pointer-events: auto; display: block;
+      max-width: 40%; aspect-ratio: 2000 / 675;
+    }
+    .result-link img {
+      width: 100%; height: auto; object-fit: contain;
+    }
   </style>
 </head>
 <body>
   <img id="cover" src="cover.jpg" alt="Background Cover" />
   <video id="video" autoplay muted playsinline></video>
   <img id="top-overlay" src="overlay.png" alt="Top Overlay" />
+
   <div class="buttons">
-    <!-- 在這裡加你的 dropdown 選單 -->
+    <div class="dropdown">
+      <button class="dropdown-btn" onclick="toggleDropdown(event, 'dropdown1')">年齡</button>
+      <div class="dropdown-content" id="dropdown1">
+        <div onclick="selectOption('age', '50-59歲', 1)">50-59歲</div>
+        <div onclick="selectOption('age', '60-69歲', 2)">60-69歲</div>
+        <div onclick="selectOption('age', '70歲以上', 3)">70歲以上</div>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropdown-btn" onclick="toggleDropdown(event, 'dropdown2')">是否有慢性病</button>
+      <div class="dropdown-content" id="dropdown2">
+        <div onclick="selectOption('chronic', '沒有', 0)">沒有</div>
+        <div onclick="selectOption('chronic', '有一項', 1)">有一項</div>
+        <div onclick="selectOption('chronic', '有兩項以上', 2)">有兩項以上</div>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropdown-btn" onclick="toggleDropdown(event, 'dropdown3')">每週工時</button>
+      <div class="dropdown-content" id="dropdown3">
+        <div onclick="selectOption('work', '少於40小時', 0)">少於40小時</div>
+        <div onclick="selectOption('work', '40-60小時', 1)">40-60小時</div>
+        <div onclick="selectOption('work', '超過60小時', 2)">超過60小時</div>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropdown-btn" onclick="toggleDropdown(event, 'dropdown4')">每週運動次數</button>
+      <div class="dropdown-content" id="dropdown4">
+        <div onclick="selectOption('exercise', '3次以上', 0)">3次以上</div>
+        <div onclick="selectOption('exercise', '1-2次', 1)">1-2次</div>
+        <div onclick="selectOption('exercise', '幾乎沒有', 2)">幾乎沒有</div>
+      </div>
+    </div>
   </div>
+
   <div class="result-link" id="resultLink" style="display: none;">
     <a href="https://www.knowhz.com.tw/" target="_blank">
       <img id="resultImage" src="" alt="Result" />
     </a>
   </div>
+
   <script>
     let currentScore = 0;
     let lastVideo = null;
@@ -70,7 +143,6 @@
       } else if (!lastVideo) {
         playSequence(video, null, `0-${level}.mov`, level);
       }
-      // 更新目前程度
       lastVideo = level;
     }
 
@@ -85,7 +157,6 @@
       const resultImage = document.getElementById('resultImage');
       const resultLink = document.getElementById('resultLink');
 
-      // 只有在播放程度-0（如 light-0.mov）時才隱藏結果圖
       const hideOnPlay = out && out.endsWith('-0.mov');
       if (hideOnPlay) {
         resultLink.style.display = 'none';
@@ -97,7 +168,6 @@
 
       await playVideo(video, into);
 
-      // 播完後顯示新的結果圖
       resultImage.src = `${level}.png`;
       resultLink.style.display = 'flex';
     }
