@@ -219,7 +219,6 @@
       const resultImage = document.getElementById('resultImage');
       const resultLink = document.getElementById('resultLink');
 
-      // 隱藏前一張 png（僅在播放 xxx-0.mov 時）
       if (out && out.endsWith('-0.mov')) {
         const fromLevel = out.replace('-0.mov', '');
         if (resultImage.src.includes(`${fromLevel}.png`)) {
@@ -227,38 +226,23 @@
         }
       }
 
-      // 播放退出影片（如果有）
       if (out) {
-        await playVideo(video, out);
+        video.src = out;
+        await video.play();
+        await waitForEnd(video);
       }
 
-      // 播放進入影片
-      await playVideo(video, into);
+      video.src = into;
+      await video.play();
+      await waitForEnd(video);
 
-      // 顯示對應結果圖片
       resultImage.src = `${level}.png`;
       resultLink.style.display = 'flex';
     }
 
-    function playVideo(video, src) {
-      return new Promise((resolve, reject) => {
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-        video.src = src;
-        video.load();
-
-        const tryPlay = () => {
-          video.play().then(() => {
-            if (video.readyState >= 3) {
-              resolve();
-            } else {
-              video.oncanplaythrough = () => resolve();
-            }
-          }).catch(reject);
-        };
-
-        video.onloadeddata = tryPlay;
+    function waitForEnd(video) {
+      return new Promise(resolve => {
+        video.onended = resolve;
       });
     }
   </script>
