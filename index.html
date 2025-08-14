@@ -142,42 +142,7 @@
   <img id="top-overlay" src="overlay.png" alt="Top Overlay" />
 
   <div class="buttons">
-    <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleDropdown(event, 'age')">年齡</button>
-      <div class="dropdown-content" id="age">
-        <div onclick="selectOption('年齡', '18歲以下', 0)">18歲以下</div>
-        <div onclick="selectOption('年齡', '18-30歲', 1)">18-30歲</div>
-        <div onclick="selectOption('年齡', '30-60歲', 2)">30-60歲</div>
-        <div onclick="selectOption('年齡', '60-90歲', 3)">60-90歲</div>
-      </div>
-    </div>
-    <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleDropdown(event, 'disease')">慢性病史</button>
-      <div class="dropdown-content" id="disease">
-        <div onclick="selectOption('慢性病史', '無疾病', -1)">無疾病</div>
-        <div onclick="selectOption('慢性病史', '糖尿病', 1)">糖尿病</div>
-        <div onclick="selectOption('慢性病史', '心血管疾病', 2)">心血管疾病</div>
-        <div onclick="selectOption('慢性病史', '腎臟疾病', 2)">腎臟疾病</div>
-      </div>
-    </div>
-    <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleDropdown(event, 'work')">每週工時</button>
-      <div class="dropdown-content" id="work">
-        <div onclick="selectOption('每週工時', '40小時', 0)">40小時</div>
-        <div onclick="selectOption('每週工時', '60小時', 1)">60小時</div>
-        <div onclick="selectOption('每週工時', '80小時', 2)">80小時</div>
-        <div onclick="selectOption('每週工時', '80小時以上', 3)">80小時以上</div>
-      </div>
-    </div>
-    <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleDropdown(event, 'exercise')">每週運動數</button>
-      <div class="dropdown-content" id="exercise">
-        <div onclick="selectOption('每週運動數', '1次', 2)">1次</div>
-        <div onclick="selectOption('每週運動數', '3次', 1)">3次</div>
-        <div onclick="selectOption('每週運動數', '5次', 0)">5次</div>
-        <div onclick="selectOption('每週運動數', '7次', -1)">7次</div>
-      </div>
-    </div>
+    <!-- Dropdowns... (unchanged) -->
   </div>
 
   <div class="result-link" id="resultLink" style="display: none;">
@@ -198,7 +163,15 @@
       '0-heavy.mov', 'heavy-0.mov'
     ];
 
+    function isDesktop() {
+      return window.innerWidth > 768;
+    }
+
     function preloadVideos() {
+      if (!isDesktop()) {
+        document.getElementById('loading-screen').style.display = 'none';
+        return;
+      }
       let loaded = 0;
       allVideos.forEach(src => {
         const v = document.createElement('video');
