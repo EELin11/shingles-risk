@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -207,8 +206,6 @@
         playSequence(video, null, `0-${level}.mov`, level);
       }
       lastVideo = level;
-
-      resultLink.style.display = 'none';
     }
 
     function getLevel(score) {
@@ -219,17 +216,26 @@
     }
 
     async function playSequence(video, out, into, level) {
+      const resultImage = document.getElementById('resultImage');
+      const resultLink = document.getElementById('resultLink');
+
+      if (out && out.endsWith('-0.mov')) {
+        const fromLevel = out.replace('-0.mov', '');
+        if (resultImage.src.includes(`${fromLevel}.png`)) {
+          resultLink.style.display = 'none';
+        }
+      }
+
       if (out) {
         video.src = out;
         await video.play();
         await waitForEnd(video);
       }
+
       video.src = into;
       await video.play();
       await waitForEnd(video);
 
-      const resultImage = document.getElementById('resultImage');
-      const resultLink = document.getElementById('resultLink');
       resultImage.src = `${level}.png`;
       resultLink.style.display = 'flex';
     }
